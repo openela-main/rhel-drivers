@@ -1,0 +1,28 @@
+From bab2f1f80e11b51822cab5248d2c5ca71a4a3734 Mon Sep 17 00:00:00 2001
+From: Robert Foss <rfoss@kernel.org>
+Date: Thu, 6 Nov 2025 14:45:56 +0100
+Subject: [PATCH 4/7] nvidia: Add nvidia-fabricmanager
+
+Signed-off-by: Robert Foss <rfoss@kernel.org>
+---
+ rhel-drivers | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/rhel-drivers b/rhel-drivers
+index 55697dd..45bc7d4 100755
+--- a/rhel-drivers
++++ b/rhel-drivers
+@@ -274,7 +274,9 @@ nvidia_packages="cublasmp \
+     dnf-plugin-nvidia \
+     libnccl-devel \
+     libnccl-static \
+-    nvidia-driver-cuda"
++    nvidia-driver-cuda \
++    nvidia-fabricmanager \
++    nvidia-fabricmanager-devel"
+ 
+ install_nvidia() {
+     driver="$1"
+-- 
+2.51.0
+

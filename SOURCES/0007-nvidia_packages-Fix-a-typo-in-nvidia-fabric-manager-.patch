@@ -1,0 +1,26 @@
+From ac1644388827bfd5726111026b1ac9fd08af9090 Mon Sep 17 00:00:00 2001
+From: Mikolaj Izdebski <mizdebsk@redhat.com>
+Date: Wed, 12 Nov 2025 16:00:39 +0100
+Subject: [PATCH 7/7] nvidia_packages: Fix a typo in
+ nvidia-fabric-manager-devel name
+
+---
+ rhel-drivers | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/rhel-drivers b/rhel-drivers
+index 11d55aa..5104373 100755
+--- a/rhel-drivers
++++ b/rhel-drivers
+@@ -275,7 +275,7 @@ nvidia_packages="cublasmp \
+     libnccl-devel \
+     libnccl-static \
+     nvidia-fabricmanager \
+-    nvidia-fabricmanager-devel"
++    nvidia-fabric-manager-devel"
+ 
+ install_nvidia() {
+     driver="$1"
+-- 
+2.51.0
+

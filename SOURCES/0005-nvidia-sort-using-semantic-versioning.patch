@@ -1,0 +1,35 @@
+From b9aaa73c3a7cc5f3f02999ac367d62e85ffe7b1c Mon Sep 17 00:00:00 2001
+From: Robert Foss <rfoss@kernel.org>
+Date: Mon, 10 Nov 2025 15:33:10 +0100
+Subject: [PATCH 5/7] nvidia: sort using semantic versioning
+
+Signed-off-by: Robert Foss <rfoss@kernel.org>
+---
+ rhel-drivers | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/rhel-drivers b/rhel-drivers
+index 45bc7d4..ec61b02 100755
+--- a/rhel-drivers
++++ b/rhel-drivers
+@@ -281,7 +281,7 @@ nvidia_packages="cublasmp \
+ install_nvidia() {
+     driver="$1"
+     driver_versions="$(driver_avail)"
+-    latest="$(echo $driver_versions | tr " " "\n" | sort -r | head -n 1)"
++    latest="$(echo $driver_versions | tr " " "\n" | sort -r -V | head -n 1)"
+     version="$latest"
+     log "[install_nvidia] Latest driver version: $latest"
+ 
+@@ -504,7 +504,7 @@ cmd_list() {
+             mark_autodetect=$(echo "$autodetected" | grep -qw "${driver%%:*}" && echo ">" || echo " ")
+ 
+             # Only show the latest or installed versions
+-            latest="$(echo $driver_versions | tr " " "\n" | sort -r | head -n 1)"
++            latest="$(echo $driver_versions | tr " " "\n" | sort -V -r | head -n 1)"
+             if [[ $driver = "amdgpu:latest" ]] || [[ $driver =~ "$latest" ]] || [[ $mark_installed == "*" ]]; then
+                 marked_avail="${marked_avail}${mark_installed}${mark_autodetect} ${driver}"$'\n'
+             fi
+-- 
+2.51.0
+

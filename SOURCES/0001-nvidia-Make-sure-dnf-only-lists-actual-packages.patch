@@ -1,0 +1,26 @@
+From 9080d1c41a728f7556c8817fdf33fb39d15bb750 Mon Sep 17 00:00:00 2001
+From: Robert Foss <rfoss@kernel.org>
+Date: Fri, 31 Oct 2025 11:01:28 +0100
+Subject: [PATCH 1/7] nvidia: Make sure dnf only lists actual packages
+
+Signed-off-by: Robert Foss <rfoss@kernel.org>
+---
+ rhel-drivers | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/rhel-drivers b/rhel-drivers
+index 44ce881..3424814 100755
+--- a/rhel-drivers
++++ b/rhel-drivers
+@@ -526,7 +526,7 @@ fi
+ # Assume that amdgpu:latest is always available, don't repoquery it
+ driver_avail="amdgpu:latest
+ "$(dnf -q \
+-    repoquery --qf 'nvidia:%{version}\n' nvidia-driver | sort -V -r)
++    repoquery --qf 'nvidia:%{version}\n' nvidia-driver | sort -V -r | sed -n /^nvidia:/p)
+ log "Available driver versions:
+ $driver_avail"
+ 
+-- 
+2.51.0
+

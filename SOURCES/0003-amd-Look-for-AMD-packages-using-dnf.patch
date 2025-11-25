@@ -1,0 +1,29 @@
+From b31b5d476764bde88e584502010c87715ff6a253 Mon Sep 17 00:00:00 2001
+From: Robert Foss <rfoss@kernel.org>
+Date: Fri, 31 Oct 2025 14:58:19 +0100
+Subject: [PATCH 3/7] amd: Look for AMD packages using dnf
+
+Signed-off-by: Robert Foss <rfoss@kernel.org>
+---
+ rhel-drivers | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/rhel-drivers b/rhel-drivers
+index e795435..55697dd 100755
+--- a/rhel-drivers
++++ b/rhel-drivers
+@@ -158,9 +158,8 @@ shift
+ 
+ # -------- functions --------
+ driver_avail() {
+-    # Assume that amdgpu:latest is always available, don't repoquery it
+-    driver_versions="amdgpu:latest $(dnf -q \
+-        repoquery --qf 'nvidia:%{version}\n' nvidia-driver | sort -V -r | sed -n /^nvidia:/p)"
++    driver_versions="$(dnf -q repoquery --qf 'amdgpu:latest\n' kmod-amdgpu | sort -u -V -r | sed -n /^amdgpu:/p)"
++    driver_versions+=" $(dnf -q repoquery --qf 'nvidia:%{version}\n' nvidia-driver | sort -V -r | sed -n /^nvidia:/p)"
+     log "Available driver versions:
+     $driver_versions"
+     echo "$(echo $driver_versions | tr ' ' '\n')"
+-- 
+2.51.0
+

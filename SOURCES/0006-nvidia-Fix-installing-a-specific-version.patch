@@ -1,0 +1,45 @@
+From a8886ec9c86b4d5f1861a6004e602465f366b892 Mon Sep 17 00:00:00 2001
+From: Robert Foss <rfoss@kernel.org>
+Date: Mon, 10 Nov 2025 16:58:20 +0100
+Subject: [PATCH 6/7] nvidia: Fix installing a specific version
+
+Signed-off-by: Robert Foss <rfoss@kernel.org>
+---
+ rhel-drivers | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/rhel-drivers b/rhel-drivers
+index ec61b02..11d55aa 100755
+--- a/rhel-drivers
++++ b/rhel-drivers
+@@ -274,7 +274,6 @@ nvidia_packages="cublasmp \
+     dnf-plugin-nvidia \
+     libnccl-devel \
+     libnccl-static \
+-    nvidia-driver-cuda \
+     nvidia-fabricmanager \
+     nvidia-fabricmanager-devel"
+ 
+@@ -295,7 +294,9 @@ install_nvidia() {
+         ;;
+     esac
+     version="${version#nvidia:}"
+-    dnf_cmd="dnf install nvidia-driver-$version $nvidia_packages"
++    nvidia_driver_pkg=$(dnf -q repoquery  nvidia-driver | grep $version)
++    nvidia_driver_cuda_pkg=$(dnf -q repoquery  nvidia-driver-cuda | grep $version)
++    dnf_cmd="dnf install $nvidia_driver_pkg $nvidia_driver_cuda_pkg $nvidia_packages"
+     log "Installing NVIDIA + CUDA driver: $version"
+     if [ $dry_run -eq 0 ]; then
+         eval $dnf_cmd
+@@ -305,7 +306,7 @@ install_nvidia() {
+ remove_nvidia() {
+     driver="$1"
+     version="$driver"
+-    dnf_cmd="dnf remove nvidia-driver-$version $nvidia_packages"
++    dnf_cmd="dnf remove nvidia-driver-$version nvidia-driver-cuda-$version $nvidia_packages"
+     log "Remove: $dnf_cmd"
+     if [ $dry_run -eq 0 ]; then
+         eval $dnf_cmd
+-- 
+2.51.0
+

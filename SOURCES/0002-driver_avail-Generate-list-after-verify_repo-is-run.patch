@@ -1,0 +1,88 @@
+From d8cf2718c14d2e5afc668355d35e8c957afc9851 Mon Sep 17 00:00:00 2001
+From: Robert Foss <rfoss@kernel.org>
+Date: Fri, 31 Oct 2025 12:58:22 +0100
+Subject: [PATCH 2/7] driver_avail: Generate list after verify_repo is run
+
+Signed-off-by: Robert Foss <rfoss@kernel.org>
+---
+ rhel-drivers | 27 ++++++++++++++++-----------
+ 1 file changed, 16 insertions(+), 11 deletions(-)
+
+diff --git a/rhel-drivers b/rhel-drivers
+index 3424814..e795435 100755
+--- a/rhel-drivers
++++ b/rhel-drivers
+@@ -157,6 +157,15 @@ subcmd=$1
+ shift
+ 
+ # -------- functions --------
++driver_avail() {
++    # Assume that amdgpu:latest is always available, don't repoquery it
++    driver_versions="amdgpu:latest $(dnf -q \
++        repoquery --qf 'nvidia:%{version}\n' nvidia-driver | sort -V -r | sed -n /^nvidia:/p)"
++    log "Available driver versions:
++    $driver_versions"
++    echo "$(echo $driver_versions | tr ' ' '\n')"
++}
++
+ verify_repos() {
+     log "[verify_repos] Checking repository status"
+ 
+@@ -270,14 +279,15 @@ nvidia_packages="cublasmp \
+ 
+ install_nvidia() {
+     driver="$1"
+-    latest="$(echo $driver_avail | tr " " "\n" | sort -r | head -n 1)"
++    driver_versions="$(driver_avail)"
++    latest="$(echo $driver_versions | tr " " "\n" | sort -r | head -n 1)"
+     version="$latest"
+     log "[install_nvidia] Latest driver version: $latest"
+ 
+     case "$driver" in
+     nvidia:*)
+         echo "\$driver=$driver"
+-        if ! grep -Fxq "$driver" <<<"$driver_avail"; then
++        if ! grep -Fxq "$driver" <<<"$driver_versions"; then
+             die "No such driver: $driver"
+         fi
+         version="$driver"
+@@ -477,6 +487,8 @@ cmd_list() {
+         # Verify and enable required repositories
+         verify_repos
+ 
++        driver_versions="$(driver_avail)"
++
+         # Check which drivers have autodetected hardware support
+         autodetected=$(autodetect 2>/dev/null || true)
+         [ -n "$autodetected" ] && log "[list] Autodetected hardware: $autodetected"
+@@ -491,11 +503,11 @@ cmd_list() {
+             mark_autodetect=$(echo "$autodetected" | grep -qw "${driver%%:*}" && echo ">" || echo " ")
+ 
+             # Only show the latest or installed versions
+-            latest="$(echo $driver_avail | tr " " "\n" | sort -r | head -n 1)"
++            latest="$(echo $driver_versions | tr " " "\n" | sort -r | head -n 1)"
+             if [[ $driver = "amdgpu:latest" ]] || [[ $driver =~ "$latest" ]] || [[ $mark_installed == "*" ]]; then
+                 marked_avail="${marked_avail}${mark_installed}${mark_autodetect} ${driver}"$'\n'
+             fi
+-        done <<<"$driver_avail"
++        done <<<"$driver_versions"
+ 
+         info "Available drivers:
+ ${marked_avail%$'\n\n\n'}"
+@@ -523,13 +535,6 @@ else
+     log "AMD GPU driver is currently NOT installed"
+ fi
+ 
+-# Assume that amdgpu:latest is always available, don't repoquery it
+-driver_avail="amdgpu:latest
+-"$(dnf -q \
+-    repoquery --qf 'nvidia:%{version}\n' nvidia-driver | sort -V -r | sed -n /^nvidia:/p)
+-log "Available driver versions:
+-$driver_avail"
+-
+ # -------- dispatch --------
+ case "$subcmd" in
+ install | in) cmd_install "$@" ;;
+-- 
+2.51.0
+
